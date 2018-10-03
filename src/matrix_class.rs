@@ -1,4 +1,5 @@
 use ::std::ops::{Index, IndexMut, Add, Sub, Neg, Mul, AddAssign, SubAssign, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr};
+use ::std::fmt;
 use ::std_vec_tools::VecTools;
 
 pub trait MatrixElement {
@@ -283,6 +284,23 @@ impl<T> Matrix<T> {
             rows,
             cols,
         }
+    }
+}
+
+impl<T> fmt::Display for Matrix<T>
+    where T: fmt::Display + Clone
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let (rows, cols, data) = self.clone().dump();
+
+        let mut s_vec = vec![];
+        for row_i in 0..rows {
+            let row = ::matrix_helper::vec_get_row(data.clone(), row_i, rows, cols);
+            let s = row.map(|x| format!("{}", x)).join(", ");
+            s_vec.push(s.clone());
+        }
+        let s = s_vec.join(",\n");
+        write!(f, "Matrix({})", s)
     }
 }
 

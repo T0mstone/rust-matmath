@@ -1,6 +1,7 @@
 pub mod std_vec_tools;
 pub mod matrix_helper;
-mod matrix_class;
+pub mod matrix_class;
+pub mod vector_class;
 pub use matrix_class::Matrix;
 
 #[cfg(test)]
