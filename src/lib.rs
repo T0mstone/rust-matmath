@@ -1,4 +1,4 @@
-pub mod vec_tools;
+pub mod std_vec_tools;
 pub mod matrix_helper;
 mod matrix_class;
 pub use matrix_class::Matrix;
@@ -7,7 +7,7 @@ pub use matrix_class::Matrix;
 mod tests {
     #![allow(unused_variables, dead_code)]
     use super::*;
-    use vec_tools::VecTools;
+    use std_vec_tools::VecTools;
 
     #[test]
     fn test1() {
@@ -30,6 +30,9 @@ mod tests {
         let mat5 = Matrix::<u8>::from_vec(3, 3, vec![0, 1, 2, 3, 4, 5, 6, 7, 8]);
         let sub11 = matrix_helper::det_sumbatrix(mat5, 0, 1);
         assert_eq!(sub11, Matrix::<u8>::from_vec(2, 2, vec![3, 5, 6, 8]));
+
+        let mat6 = Matrix::<i8>::identity(2);
+        assert_eq!(-mat6, Matrix::<i8>::from_vec(2, 2, vec![-1, 0, 0, -1]));
     }
 
     #[test]

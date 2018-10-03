@@ -1,5 +1,5 @@
-use ::std::ops::{Index, IndexMut, Add, Sub, Neg, Mul, AddAssign, SubAssign, MulAssign, Deref};
-use ::vec_tools::VecTools;
+use ::std::ops::{Index, IndexMut, Add, Sub, Neg, Mul, AddAssign, SubAssign, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr};
+use ::std_vec_tools::VecTools;
 
 pub trait MatrixElement {
     fn zero() -> Self;
@@ -7,13 +7,13 @@ pub trait MatrixElement {
 }
 
 impl<T> MatrixElement for T
-    where T: From<u8>
+    where T: From<bool>
 {
     fn zero() -> T {
-        T::from(0)
+        T::from(false)
     }
     fn one() -> T {
-        T::from(1)
+        T::from(true)
     }
 }
 
@@ -370,6 +370,134 @@ impl<T, U, O> Mul<Matrix<U>> for Matrix<T>
             data,
             rows: s_rows,
             cols: r_cols,
+        }
+    }
+}
+
+impl<T, O> Neg for Matrix<T>
+    where T: Neg<Output=O>
+{
+    type Output = Matrix<O>;
+
+    fn neg(self) -> Matrix<O> {
+        let (rows, cols) = self.dim();
+        let data = self.data.map(|x| x.neg());
+        Matrix {
+            data,
+            rows,
+            cols
+        }
+    }
+}
+
+impl<T, U, O> Rem<U> for Matrix<T>
+    where T: Rem<U, Output=O>, U: Clone
+{
+    type Output = Matrix<O>;
+
+    fn rem(self, rhs: U) -> Matrix<O> {
+        let (rows, cols) = self.dim();
+        let data = self.data.map(|x| x % rhs.clone());
+        Matrix {
+            data,
+            rows,
+            cols
+        }
+    }
+}
+
+impl<T, U, O> BitAnd<U> for Matrix<T>
+    where T: BitAnd<U, Output=O>, U: Clone
+{
+    type Output = Matrix<O>;
+
+    fn bitand(self, rhs: U) -> Matrix<O> {
+        let (rows, cols) = self.dim();
+        let data = self.data.map(|x| x & rhs.clone());
+        Matrix {
+            data,
+            rows,
+            cols
+        }
+    }
+}
+
+impl<T, U, O> BitOr<U> for Matrix<T>
+    where T: BitOr<U, Output=O>, U: Clone
+{
+    type Output = Matrix<O>;
+
+    fn bitor(self, rhs: U) -> Matrix<O> {
+        let (rows, cols) = self.dim();
+        let data = self.data.map(|x| x | rhs.clone());
+        Matrix {
+            data,
+            rows,
+            cols
+        }
+    }
+}
+
+impl<T, U, O> BitXor<U> for Matrix<T>
+    where T: BitXor<U, Output=O>, U: Clone
+{
+    type Output = Matrix<O>;
+
+    fn bitxor(self, rhs: U) -> Matrix<O> {
+        let (rows, cols) = self.dim();
+        let data = self.data.map(|x| x ^ rhs.clone());
+        Matrix {
+            data,
+            rows,
+            cols
+        }
+    }
+}
+
+impl<T, O> Not for Matrix<T>
+    where T: Not<Output=O>
+{
+    type Output = Matrix<O>;
+
+    fn not(self) -> Matrix<O> {
+        let (rows, cols) = self.dim();
+        let data = self.data.map(|x| x.not());
+        Matrix {
+            data,
+            rows,
+            cols
+        }
+    }
+}
+
+impl<T, U, O> Shl<U> for Matrix<T>
+    where T: Shl<U, Output=O>, U: Clone
+{
+    type Output = Matrix<O>;
+
+    fn shl(self, rhs: U) -> Matrix<O> {
+        let (rows, cols) = self.dim();
+        let data = self.data.map(|x| x << rhs.clone());
+        Matrix {
+            data,
+            rows,
+            cols
+        }
+    }
+}
+
+impl<T, U, O> Shr<U> for Matrix<T>
+    where T: Shr<U, Output=O>, U: Clone
+{
+    type Output = Matrix<O>;
+
+    fn shr(self, rhs: U) -> Matrix<O> {
+        let (rows, cols) = self.dim();
+        let data = self.data.map(|x| x >> rhs.clone());
+        Matrix {
+            data,
+            rows,
+            cols
         }
     }
 }

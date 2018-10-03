@@ -1,4 +1,4 @@
-use ::vec_tools::VecTools;
+use ::std_vec_tools::VecTools;
 use ::matrix_class::Matrix;
 
 pub fn vec_transposed<T>(data: Vec<T>, rows: usize, cols: usize) -> Vec<T> {
