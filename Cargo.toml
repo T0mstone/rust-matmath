@@ -1,5 +1,5 @@
 [package]
-name = "matrix_math"
+name = "matmath"
 version = "1.0.0"
 authors = ["T0mstone <realt0mstone@gmail.com>"]
 
@@ -10,7 +10,7 @@ description = "Matrix and Vector Math with Generic Type Elements"
 # These URLs point to more information about the package. These are
 # intended to be webviews of the relevant data, not necessarily compatible
 # with VCS tools and the like.
-documentation = "..."
+documentation = "https://docs.rs/matmath"
 repository = "https://github.com/T0mstone/rust-matmath"
 
 keywords = ["matrix-multiplication", "matrix-math", "vector-math", "matrix", "vector"]
