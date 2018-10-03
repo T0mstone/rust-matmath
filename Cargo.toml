@@ -1,0 +1,6 @@
+[package]
+name = "matrix_math_2"
+version = "0.1.0"
+authors = ["T0mstone <realt0mstone@gmail.com>"]
+
+[dependencies]
