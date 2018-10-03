@@ -1,4 +1,5 @@
 pub mod vec_tools;
+pub mod matrix_helper;
 mod matrix_class;
 pub use matrix_class::Matrix;
 
@@ -19,6 +20,16 @@ mod tests {
 
         let r = mat1.set_at(3, 4, 2);
         assert_eq!(r, Err("index out of bounds".to_string()));
+
+        let mat2 = Matrix::<u8>::identity(3);
+        let mat3 = Matrix::<u8>::build(2, 3, |r, c| if r == c { 1 } else { 0 });
+
+        let mat4 = mat3 * mat2;
+        assert_eq!(mat4, Matrix::from_vec(2, 3, vec![1, 0, 0, 0, 1, 0]));
+
+        let mat5 = Matrix::<u8>::from_vec(3, 3, vec![0, 1, 2, 3, 4, 5, 6, 7, 8]);
+        let sub11 = matrix_helper::det_sumbatrix(mat5, 0, 1);
+        assert_eq!(sub11, Matrix::<u8>::from_vec(2, 2, vec![3, 5, 6, 8]));
     }
 
     #[test]

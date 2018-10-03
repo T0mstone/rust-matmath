@@ -1,4 +1,3 @@
-use ::std::cmp::min;
 use ::std::ops::Add;
 
 pub trait VecTools<T> {
