@@ -8,7 +8,7 @@ description = "Matrix and Vector Math with Generic Type Elements"
 documentation = "https://docs.rs/matmath"
 repository = "https://github.com/T0mstone/rust-matmath"
 
-keywords = ["matrix-multiplication", "matrix-math", "vector-math", "matrix", "vector"]
+keywords = ["matrix-math", "vector-math", "matrix", "vector"]
 
 categories = ["data-structures"]
 
