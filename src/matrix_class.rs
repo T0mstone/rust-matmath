@@ -20,12 +20,6 @@ impl<T> MatrixElement for T
     }
 }
 
-pub trait MatrixScalar {}
-
-impl<T> MatrixScalar for T
-    where T: From<u8>
-{}
-
 /// A helper class, not intended to be used by you
 #[derive(Clone)]
 pub struct Accumulator<T> {
