@@ -3,6 +3,7 @@ pub mod matrix_helper;
 pub mod matrix_class;
 pub mod vector_class;
 pub use matrix_class::Matrix;
+pub use vector_class::Vector;
 
 #[cfg(test)]
 mod tests {
@@ -11,7 +12,7 @@ mod tests {
     use std_vec_tools::VecTools;
 
     #[test]
-    fn test1() {
+    fn test_matrix() {
         let mut mat1 = Matrix::<u8>::identity(3);
         assert_eq!(mat1, Matrix::from_vec(3, 3, vec![1, 0, 0, 0, 1, 0, 0, 0, 1]));
 
@@ -37,7 +38,23 @@ mod tests {
     }
 
     #[test]
-    fn test2() {
+    fn test_vector() {
+        let vec1 = Vector::new(vec![0, 1, 2]);
+        let m: Matrix<_> = vec1.into();
+        assert_eq!(m, Matrix::from_vec(3, 1, vec![0, 1, 2]));
+
+        let vec2 = Vector::new(vec![0, 1, 2]);
+        let s = vec2.scaled(2);
+        assert_eq!(s, Vector::new(vec![0, 2, 4]));
+
+        let mat3 = Matrix::from_vec(2, 2, vec![2, 0, 0, 1]);
+        let vec3 = Vector::new(vec![1, 1]);
+        let mul = mat3 * vec3;
+        assert_eq!(mul, Vector::new(vec![2, 1]));
+    }
+
+    #[test]
+    fn test_vectools() {
         let gen_vec = |len: usize| {
             let r: Vec<usize> = (0..len).collect();
             r

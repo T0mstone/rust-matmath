@@ -1,6 +1,7 @@
 use ::std::ops::{Index, IndexMut, Add, Sub, Neg, Mul, AddAssign, SubAssign, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr};
 use ::std::fmt;
 use ::std_vec_tools::VecTools;
+use ::Vector;
 
 pub trait MatrixElement {
     fn zero() -> Self;
@@ -389,6 +390,18 @@ impl<T, U, O> Mul<Matrix<U>> for Matrix<T>
             rows: s_rows,
             cols: r_cols,
         }
+    }
+}
+
+impl<T, U, O> Mul<Vector<U>> for Matrix<T>
+    where T: Mul<U, Output=O> + Clone, U: Clone, O: Add<O, Output=O>
+{
+    type Output = Vector<O>;
+
+    fn mul(self, rhs: Vector<U>) -> Vector<O> {
+        let mat: Matrix<U> = rhs.into();
+        let res = self * mat;
+        res.into()
     }
 }
 

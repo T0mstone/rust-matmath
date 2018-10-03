@@ -1,4 +1,4 @@
-use ::std::ops::{Index, IndexMut, Add, Sub, Neg, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr};
+use ::std::ops::{Index, IndexMut, Add, Sub, Mul, Neg, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr};
 use ::std::convert::{Into, From};
 use ::std::fmt::{Display, Formatter, Result};
 use ::std_vec_tools::VecTools;
@@ -18,6 +18,13 @@ impl<T> Vector<T> {
     pub fn dim(&self) -> usize {
         self.data.len()
     }
+    pub fn scaled<U, O>(self, scalar: U) -> Vector<O>
+        where T: Mul<U, Output=O>, U: Clone
+    {
+        self.map(|x| x * scalar.clone())
+    }
+
+
     pub fn zip<U>(self, other: Vector<U>) -> Vector<(T, U)> {
         Vector::new(self.data.zip(other.data))
     }
