@@ -5,6 +5,8 @@ use ::std_vec_tools::VecTools;
 use ::matrix_class::Matrix;
 
 
+/// A Vector with generic type items
+/// Can be indexed by `vector[i]`
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Vector<T> {
     data: Vec<T>
@@ -18,16 +20,17 @@ impl<T> Vector<T> {
     pub fn dim(&self) -> usize {
         self.data.len()
     }
+    /// Multiplies the vector with a scalar
     pub fn scaled<U, O>(self, scalar: U) -> Vector<O>
         where T: Mul<U, Output=O>, U: Clone
     {
         self.map(|x| x * scalar.clone())
     }
 
-
     pub fn zip<U>(self, other: Vector<U>) -> Vector<(T, U)> {
         Vector::new(self.data.zip(other.data))
     }
+    /// Applies a function to every element of the vector
     pub fn map<F, U>(self, f: F) -> Vector<U>
         where F: Fn(T) -> U
     {
@@ -44,12 +47,14 @@ impl<T> Display for Vector<T>
     }
 }
 
+/// A Vector can be cast to a matrix and back
 impl<T> Into<Matrix<T>> for Vector<T> {
     fn into(self) -> Matrix<T> {
         Matrix::from_vec(self.dim(), 1, self.data)
     }
 }
 
+/// A Vector can be cast to a matrix and back
 impl<T> From<Matrix<T>> for Vector<T> {
     fn from(mat: Matrix<T>) -> Self {
         let (_, cols, data) = mat.dump();
@@ -74,6 +79,7 @@ impl<T> IndexMut<usize> for Vector<T> {
     }
 }
 
+/// Adds two vectors element by element
 impl<T, U, O> Add<Vector<U>> for Vector<T>
     where T: Add<U, Output=O>
 {
@@ -84,6 +90,7 @@ impl<T, U, O> Add<Vector<U>> for Vector<T>
     }
 }
 
+/// Subtracts two vectors element by element
 impl<T, U, O> Sub<Vector<U>> for Vector<T>
     where T: Sub<U, Output=O>
 {

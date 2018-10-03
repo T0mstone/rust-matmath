@@ -3,6 +3,7 @@ use ::std::fmt;
 use ::std_vec_tools::VecTools;
 use ::Vector;
 
+/// This trait is required for `matrix.identity(...)` and for `matrix.det()`
 pub trait MatrixElement {
     fn zero() -> Self;
     fn one() -> Self;
@@ -25,6 +26,7 @@ impl<T> MatrixScalar for T
     where T: From<u8>
 {}
 
+/// A helper class, not intended to be used by you
 #[derive(Clone)]
 pub struct Accumulator<T> {
     pub value: Option<T>
@@ -98,6 +100,8 @@ impl<T> SubAssign<Option<T>> for Accumulator<T>
     }
 }
 
+/// A Matrix with generic type items
+/// Can be indexed by `mat[(row, col)]`
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Matrix<T> {
     data: Vec<T>,
@@ -106,6 +110,7 @@ pub struct Matrix<T> {
 }
 
 impl<T> Matrix<T> {
+    /// Generates a `rows`x`cols` matrix where every element is `e`
     pub fn fill(rows: usize, cols: usize, e: T) -> Self
         where T: Clone
     {
@@ -122,6 +127,7 @@ impl<T> Matrix<T> {
         }
     }
 
+    /// Generates a `rows`x`cols` matrix where every element is obtained by evaluating `builder_fn(row, col)`
     pub fn build<F>(rows: usize, cols: usize, builder_fn: F) -> Self
         where F: Fn(usize, usize) -> T
     {
@@ -138,6 +144,7 @@ impl<T> Matrix<T> {
         }
     }
 
+    /// Generates a `rows`x`rows` identiity matrix (using `MatrixElement::zero()` and `MatrixElement::one()`)
     pub fn identity(rows: usize) -> Self
         where T: MatrixElement
     {
@@ -151,6 +158,7 @@ impl<T> Matrix<T> {
         Self::build(rows, rows, id_fn)
     }
 
+    /// Generates a `rows`x`cols` matrix with the data specified in `data`
     pub fn from_vec(rows: usize, cols: usize, data: Vec<T>) -> Self {
         assert_eq!(data.len(), rows * cols, "vec has len {} but needs len {}", data.len(), rows * cols);
         Self {
@@ -196,30 +204,6 @@ impl<T> Matrix<T> {
         let i = (self.cols() * row) + col;
         self.data[i] = val;
         Ok(())
-    }
-    pub fn map<F, U>(&self, f: F) -> Matrix<U>
-        where F: Fn(&T) -> U
-    {
-        Matrix::<U> {
-            data: self.data.iter().map(f).collect(),
-            rows: self.rows,
-            cols: self.cols,
-        }
-    }
-    pub fn enumerate_map<F, U>(&self, f: F) -> Matrix<U>
-        where F: Fn(usize, usize, &T) -> U
-    {
-        Matrix::<U> {
-            data: self.data.iter().enumerate()
-                .map(|(i, e)| {
-                    let row = i / self.cols();
-                    let col = i % self.cols();
-                    f(row, col, e)
-                })
-                .collect(),
-            rows: self.rows,
-            cols: self.cols,
-        }
     }
 
     pub fn transposed(self) -> Self
@@ -275,6 +259,7 @@ impl<T> Matrix<T> {
         res.value.unwrap()
     }
 
+    /// Multiplies the matrix with a scalar
     pub fn scaled<U, O>(self, scalar: U) -> Matrix<O>
         where U: Mul<T, Output=O>, U: Clone
     {
@@ -323,6 +308,7 @@ impl<T> IndexMut<(usize, usize)> for Matrix<T> {
     }
 }
 
+/// Adds two matrices element by element
 impl<T, U, O> Add<Matrix<U>> for Matrix<T>
     where T: Add<U, Output=O>
 {
@@ -343,6 +329,7 @@ impl<T, U, O> Add<Matrix<U>> for Matrix<T>
     }
 }
 
+/// Subtracts two matrices element by element
 impl<T, U, O> Sub<Matrix<U>> for Matrix<T>
     where T: Clone + Sub<U, Output=O>, U: Clone
 {
@@ -363,6 +350,7 @@ impl<T, U, O> Sub<Matrix<U>> for Matrix<T>
     }
 }
 
+/// Matrix Multiplication
 impl<T, U, O> Mul<Matrix<U>> for Matrix<T>
     where T: Mul<U, Output=O> + Clone, U: Clone, O: Add<O, Output=O>
 {
@@ -393,6 +381,7 @@ impl<T, U, O> Mul<Matrix<U>> for Matrix<T>
     }
 }
 
+/// Matrix-Vector Multiplication
 impl<T, U, O> Mul<Vector<U>> for Matrix<T>
     where T: Mul<U, Output=O> + Clone, U: Clone, O: Add<O, Output=O>
 {
@@ -416,7 +405,7 @@ impl<T, O> Neg for Matrix<T>
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 }
@@ -432,7 +421,7 @@ impl<T, U, O> Rem<U> for Matrix<T>
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 }
@@ -448,7 +437,7 @@ impl<T, U, O> BitAnd<U> for Matrix<T>
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 }
@@ -464,7 +453,7 @@ impl<T, U, O> BitOr<U> for Matrix<T>
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 }
@@ -480,7 +469,7 @@ impl<T, U, O> BitXor<U> for Matrix<T>
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 }
@@ -496,7 +485,7 @@ impl<T, O> Not for Matrix<T>
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 }
@@ -512,7 +501,7 @@ impl<T, U, O> Shl<U> for Matrix<T>
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 }
@@ -528,7 +517,7 @@ impl<T, U, O> Shr<U> for Matrix<T>
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 }

@@ -1,6 +1,8 @@
 use ::std_vec_tools::VecTools;
 use ::matrix_class::Matrix;
 
+/// This is a helper module. That means it is not intended for use by you
+
 pub fn vec_transposed<T>(data: Vec<T>, rows: usize, cols: usize) -> Vec<T> {
     let mut e_data = data.enumerate();
 

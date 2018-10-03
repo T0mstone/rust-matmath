@@ -1,5 +1,7 @@
 use ::std::ops::Add;
 
+/// This is a helper module. That means it is not intended for use by you
+
 pub trait VecTools<T> {
     fn enumerate(self) -> Vec<(usize, T)>;
     fn map<U, F>(self, f: F) -> Vec<U>
