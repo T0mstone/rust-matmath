@@ -12,5 +12,7 @@ keywords = ["matrix-math", "vector-math", "matrix", "vector"]
 
 categories = ["data-structures"]
 
+license = "MIT"
+
 
 [dependencies]
