@@ -1,6 +1,6 @@
 [package]
 name = "matmath"
-version = "1.0.3"
+version = "1.0.4"
 authors = ["T0mstone <realt0mstone@gmail.com>"]
 
 description = "Matrix and Vector Math with Generic Type Elements"

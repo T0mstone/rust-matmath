@@ -5,7 +5,7 @@ use ::std_vec_tools::VecTools;
 use ::matrix_class::Matrix;
 
 
-/// A Vector with generic type items
+/// A Vector with generic type items.
 /// Can be indexed by `vector[i]`
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Vector<T> {

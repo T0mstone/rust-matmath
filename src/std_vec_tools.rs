@@ -1,4 +1,3 @@
-/// This is a helper module. That means it is not intended for use by you
 use ::std::ops::Add;
 
 

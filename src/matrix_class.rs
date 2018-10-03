@@ -94,7 +94,7 @@ impl<T> SubAssign<Option<T>> for Accumulator<T>
     }
 }
 
-/// A Matrix with generic type items
+/// A Matrix with generic type items.
 /// Can be indexed by `mat[(row, col)]`
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Matrix<T> {
@@ -138,7 +138,7 @@ impl<T> Matrix<T> {
         }
     }
 
-    /// Generates a `rows`x`rows` identiity matrix (using `MatrixElement::zero()` and `MatrixElement::one()`)
+    /// Generates a `rows`x`rows` identity matrix (using `MatrixElement::zero()` and `MatrixElement::one()`)
     pub fn identity(rows: usize) -> Self
         where T: MatrixElement
     {

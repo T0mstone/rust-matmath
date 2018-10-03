@@ -1,4 +1,6 @@
+/// This is a helper module, not intended for use by you
 pub mod std_vec_tools;
+/// This is a helper module, not intended for use by you
 pub mod matrix_helper;
 pub mod matrix_class;
 pub mod vector_class;
