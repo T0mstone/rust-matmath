@@ -1,6 +1,21 @@
 [package]
-name = "matrix_math_2"
-version = "0.1.0"
+name = "matrix_math"
+version = "1.0.0"
 authors = ["T0mstone <realt0mstone@gmail.com>"]
+
+# A short blurb about the package. This is not rendered in any format when
+# uploaded to crates.io (aka this is not markdown).
+description = "Matrix and Vector Math with Generic Type Elements"
+
+# These URLs point to more information about the package. These are
+# intended to be webviews of the relevant data, not necessarily compatible
+# with VCS tools and the like.
+documentation = "..."
+repository = "https://github.com/T0mstone/rust-matmath"
+
+keywords = ["matrix-multiplication", "matrix-math", "vector-math", "matrix", "vector"]
+
+categories = ["data-structures"]
+
 
 [dependencies]
