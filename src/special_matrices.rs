@@ -298,6 +298,7 @@ pub mod misc {
         rotation_matrix(3, 0, 1)
     }
 
+    /// Generates a Matrix that switches two dimensions of a vector (e.g. `Vector(1, 2, 3)` -> `Vector(1, 3, 2)`
     pub fn switch_dimension_matrix<T>(rows: usize, dim1: usize, dim2: usize) -> Matrix<T>
         where T: MatrixElement
     {
