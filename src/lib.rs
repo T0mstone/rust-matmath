@@ -92,6 +92,7 @@ mod tests {
     #[test]
     fn test_rotmat() {
         use ::special_matrices::rotation::*;
+        use ::special_matrices::misc::*;
         let rot2d = rotation_matrix(2, 0, 1);
         let rot1 = rotation_matrix(3, 2, 0);
         let rot2 = rotation_matrix(3, 0, 1);
@@ -99,12 +100,14 @@ mod tests {
 //        println!("\n{}\n", rot2d);
 //        println!("\n** {}\n * {}\n = {}\n", rot1, rot2, rot3);
         // Works as intended
-        let rot3_0 = insert_rotation(rot3, 0.0);
+        let rot3_0 = insert_rotation_value(rot3, 0.0);
 //        println!("{}", rot3_0);
         let rot2_0 = rotation_matrix(2, 0, 0);
 //        println!("{}", rot2_0);
         // Rotating to the same axis is kind of weird, I mean how would you do that?????
         // But i'll keep it in anyway as part of the formal definition I got online
         // Everything else works well
+        let swm312 = switch_dimension_matrix::<u8>(3, 1, 2);
+        println!("{}", swm312);
     }
 }
