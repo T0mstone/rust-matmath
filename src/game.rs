@@ -652,15 +652,15 @@ pub mod cam3d {
     pub struct Cam3d<T> {
         pub pos: Vector3<T>,
         pub rot: Vector3<T>,
-        pub display_surface_pos: Vector3<T>,
+        pub focal_length: T,
     }
 
     impl<T> Cam3d<T> {
-        pub fn new(pos: (T, T, T), rot: (T, T, T), display_surface_pos: (T, T, T)) -> Self {
+                pub fn new(pos: (T, T, T), rot: (T, T, T), focal_length: T) -> Self {
             Self {
                 pos: pos.into(),
                 rot: rot.into(),
-                display_surface_pos: display_surface_pos.into()
+                focal_length
             }
         }
 
@@ -681,11 +681,13 @@ pub mod cam3d {
         pub fn project(&self, v: Vector3<T>) -> Vector2<T>
             where T: Clone + Neg<Output=T> + Trig<Output=T> + Add<Output=T> + Sub<Output=T> + Mul<Output=T> + MatrixElement + Div<Output=T>
         {
+            // great visual understanding: https://en.wikipedia.org/wiki/3D_projection#Diagram
+            // also: http://www.scratchapixel.com/lessons/3d-basic-rendering/computing-pixel-coordinates-of-3d-point/mathematics-computing-2d-coordinates-of-3d-points
             let (x, y, z) = self.undo_camera_posrot(v).into();
-            let (ex, ey, ez) = self.display_surface_pos.clone().into();
-            let m: T = ez / z;
-            let bx = m.clone() * x + ex;
-            let by = m * y + ey;
+            let f = self.focal_length.clone();
+            let m = f / z;
+            let bx = m.clone() * x;
+            let by = m * y;
             Vector2::new(bx, by)
         }
     }

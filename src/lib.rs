@@ -94,7 +94,6 @@ mod tests {
     #[test]
     fn test_rotmat() {
         use ::special_matrices::rotation::*;
-        use ::special_matrices::misc::*;
         let rot2d = rotation_matrix(2, 0, 1);
         let rot1 = rotation_matrix(3, 2, 0);
         let rot2 = rotation_matrix(3, 0, 1);
@@ -109,5 +108,19 @@ mod tests {
         // Rotating to the same axis is kind of weird, I mean how would you do that?????
         // But i'll keep it in anyway as part of the formal definition I got online
         // Everything else works well
+    }
+
+    #[test]
+    fn test_camera() {
+        use ::game::cam3d::Cam3d;
+        use ::game::Vector3f;
+
+        let cam = Cam3d::<f64>::new((0.0, 0.0, 0.0), (0.0, 0.0, 0.0), 1.0);
+
+        let v = Vector3f::new(1.0, 2.0, 1.0);
+
+        let v2 = cam.project(v);
+        println!("{}", v2);
+
     }
 }
