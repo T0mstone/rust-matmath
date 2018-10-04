@@ -213,7 +213,8 @@ pub mod rotation {
         }
     }
 
-    /// Generates a rotation matrix in n dimensions that rotates from axis a to axis b
+    /// Generates a rotation matrix in n dimensions that rotates from axis a to axis b  (does **not** contain actual values, look under `Matrix`, in `impl Matrix<RotmatElement>` to insert values into a rotation Matrix)
+    ///
     /// (e.g. a counter-clockwise rotation in 2D would be from the X to the Y axis and so you'd call this function with parameters `(2, 0, 1)` (since axes are indexed from 0))
     ///
     /// You can still multiply this matrix with other `Matrix<RotmatElement>` to combine rotations
@@ -223,13 +224,15 @@ pub mod rotation {
         })
     }
 
-    /// Takes a previously generated Rotation Matrix and inserts a specific value into it
-    /// For f32 and f64, this would be the angle in radians, but for your own type it could be whatever...
-    /// (it uses the `Trig` and the `MatrixElement` traits to get values for sin, -sin, cos, 0 and 1)
-    pub fn insert_rotation_value<T, O>(rotation_matrix: Matrix<RotmatElement>, value: T) -> Matrix<O>
-        where T: Trig<Output=O> + Clone, O: Neg<Output=O> + Add<Output=O> + Mul<Output=O> + MatrixElement
-    {
-        rotation_matrix.map(|rme| rme.insert_value(value.clone()))
+    impl Matrix<RotmatElement> {
+        /// Takes a previously generated Rotation Matrix and inserts a specific value into it
+        /// For f32 and f64, this would be the angle in radians, but for your own type it could be whatever...
+        /// (it uses the `Trig` and the `MatrixElement` traits to get values for sin, -sin, cos, 0 and 1)
+        pub fn insert_rotation_value<T, O>(self, value: T) -> Matrix<O>
+            where T: Trig<Output=O> + Clone, O: Neg<Output=O> + Add<Output=O> + Mul<Output=O> + MatrixElement
+        {
+            self.map(|rme| rme.insert_value(value.clone()))
+        }
     }
 }
 
