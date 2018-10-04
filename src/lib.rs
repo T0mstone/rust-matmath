@@ -119,7 +119,7 @@ mod tests {
 
         let v = Vector3f::new(1.0, 2.0, 1.0);
 
-        let v2 = cam.project(v);
+        let v2 = cam.project(v).unwrap();
         println!("{}", v2);
 
     }

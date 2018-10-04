@@ -1,4 +1,5 @@
 use ::std::ops::{Add, Sub, Mul, Div, Neg, Rem, BitAnd, BitOr, BitXor, Not, Shl, Shr};
+use ::std::cmp::PartialOrd;
 use ::std::convert::{Into, From};
 use ::std::fmt::{Display, Formatter, Result};
 use ::matrix_class::{Matrix, MatrixElement};
@@ -655,6 +656,10 @@ pub mod cam3d {
         pub focal_length: T,
     }
 
+
+    /// A Camera Object
+    ///
+    /// In Camera space, z is forward
     impl<T> Cam3d<T> {
                 pub fn new(pos: (T, T, T), rot: (T, T, T), focal_length: T) -> Self {
             Self {
@@ -678,17 +683,21 @@ pub mod cam3d {
             res.into()
         }
 
-        pub fn project(&self, v: Vector3<T>) -> Vector2<T>
-            where T: Clone + Neg<Output=T> + Trig<Output=T> + Add<Output=T> + Sub<Output=T> + Mul<Output=T> + MatrixElement + Div<Output=T>
+        /// performs a perspective Projection on `v` using the current position, rotation and focal length, returns `None` if the `v` is behind the camera (-z direction)
+        pub fn project(&self, v: Vector3<T>) -> Option<Vector2<T>>
+            where T: Clone + Neg<Output=T> + Trig<Output=T> + Add<Output=T> + Sub<Output=T> + Mul<Output=T> + MatrixElement + Div<Output=T> + PartialOrd
         {
             // great visual understanding: https://en.wikipedia.org/wiki/3D_projection#Diagram
             // also: http://www.scratchapixel.com/lessons/3d-basic-rendering/computing-pixel-coordinates-of-3d-point/mathematics-computing-2d-coordinates-of-3d-points
             let (x, y, z) = self.undo_camera_posrot(v).into();
+            if z <= T::zero() {
+                return None;
+            }
             let f = self.focal_length.clone();
             let m = f / z;
             let bx = m.clone() * x;
             let by = m * y;
-            Vector2::new(bx, by)
+            Some(Vector2::new(bx, by))
         }
     }
 }
