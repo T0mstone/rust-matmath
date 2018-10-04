@@ -20,9 +20,8 @@ impl<T> MatrixElement for T
     }
 }
 
-/// A helper class, not intended to be used by you
 #[derive(Clone)]
-pub struct Accumulator<T> {
+struct Accumulator<T> {
     pub value: Option<T>
 }
 
@@ -199,6 +198,17 @@ impl<T> Matrix<T> {
         self.data[i] = val;
         Ok(())
     }
+    pub fn map<F, U>(self, f: F) -> Matrix<U>
+        where F: Fn(T) -> U
+    {
+        let (rows, cols, data) = self.dump();
+        let data = data.map(f);
+        Matrix {
+            data,
+            rows,
+            cols
+        }
+    }
 
     pub fn transposed(self) -> Self
     {
@@ -279,7 +289,7 @@ impl<T> fmt::Display for Matrix<T>
             let s = row.map(|x| format!("{}", x)).join(", ");
             s_vec.push(s.clone());
         }
-        let s = s_vec.join(",\n");
+        let s = s_vec.join(",\n       ");
         write!(f, "Matrix({})", s)
     }
 }

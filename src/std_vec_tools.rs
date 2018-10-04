@@ -1,6 +1,5 @@
 use ::std::ops::Add;
 
-
 pub trait VecTools<T> {
     fn enumerate(self) -> Vec<(usize, T)>;
     fn map<U, F>(self, f: F) -> Vec<U>
@@ -9,6 +8,8 @@ pub trait VecTools<T> {
     fn reversed(self) -> Vec<T>;
     fn sum(self) -> Option<T>
         where T: Add<T, Output=T>;
+    fn acc<F>(self, f: F) -> Option<T>
+        where F: Fn(T, T) -> T;
 }
 
 impl<T> VecTools<T> for Vec<T> {
@@ -61,6 +62,21 @@ impl<T> VecTools<T> for Vec<T> {
             let val = v.pop().unwrap();
             if let Some(a) = acc {
                 acc = Some(a + val);
+            } else {
+                acc = Some(val);
+            }
+        }
+        acc
+    }
+    fn acc<F>(self, f: F) -> Option<T>
+        where F: Fn(T, T) -> T
+    {
+        let mut v = self.reversed();
+        let mut acc = None;
+        while v.len() > 0 {
+            let val = v.pop().unwrap();
+            if let Some(a) = acc {
+                acc = Some(f(a, val));
             } else {
                 acc = Some(val);
             }

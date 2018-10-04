@@ -1,9 +1,8 @@
-/// This is a helper module, not intended for use by you
-pub mod std_vec_tools;
-/// This is a helper module, not intended for use by you
-pub mod matrix_helper;
+mod std_vec_tools;
+mod matrix_helper;
 pub mod matrix_class;
 pub mod vector_class;
+pub mod special_matrices;
 pub use matrix_class::Matrix;
 pub use vector_class::Vector;
 
@@ -86,5 +85,16 @@ mod tests {
         let s = v5.sum();
 
         assert_eq!(s, Some(3));
+    }
+
+    #[test]
+    fn test_rotmat() {
+        use ::special_matrices::rotation::*;
+        let rot2d = rotation_matrix(2, 0, 1);
+        let rot1 = rotation_matrix(3, 2, 0);
+        let rot2 = rotation_matrix(3, 0, 1);
+//        println!("\n{}\n", rot2d);
+//        println!("\n** {}\n * {}\n = {}\n", rot1.clone(), rot2.clone(), rot1 * rot2);
+        // Works as intended
     }
 }
