@@ -9,16 +9,26 @@ pub trait MatrixElement {
     fn one() -> Self;
 }
 
-impl<T> MatrixElement for T
-    where T: From<bool>
-{
-    fn zero() -> T {
-        T::from(false)
-    }
-    fn one() -> T {
-        T::from(true)
+macro_rules! impl_matrix_element {
+    ( $($x:ty),* ) => {
+        $(
+            impl MatrixElement for $x {
+                fn zero() -> $x {
+                    0 as $x
+                }
+                fn one() -> $x {
+                    1 as $x
+                }
+            }
+        )*
     }
 }
+
+impl_matrix_element!(
+    i8, i16, i32, i64, i128,
+    u8, u16, u32, u64, u128,
+    f32, f64
+);
 
 #[derive(Clone)]
 struct Accumulator<T> {
@@ -206,7 +216,7 @@ impl<T> Matrix<T> {
         Matrix {
             data,
             rows,
-            cols
+            cols,
         }
     }
 

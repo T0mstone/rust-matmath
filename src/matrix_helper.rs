@@ -18,6 +18,7 @@ pub fn vec_transposed<T>(data: Vec<T>, rows: usize, cols: usize) -> Vec<T> {
     let data = e_data.map(|(_, e)| e);
     data
 }
+
 pub fn vec_get_row<T>(data: Vec<T>, row_i: usize, rows: usize, cols: usize) -> Vec<T>
     where T: Clone
 {
@@ -26,11 +27,13 @@ pub fn vec_get_row<T>(data: Vec<T>, row_i: usize, rows: usize, cols: usize) -> V
     let row_end = cols * (row_i + 1);
     data[row_start..row_end].to_vec()
 }
+
 pub fn vec_get_col<T>(data: Vec<T>, col_i: usize, rows: usize, cols: usize) -> Vec<T>
     where T: Clone
 {
     vec_get_row(vec_transposed(data, rows, cols), col_i, cols, rows)
 }
+
 pub fn det_sumbatrix<T>(mat: Matrix<T>, without_row: usize, without_col: usize) -> Matrix<T> {
     let (rows, cols, data) = mat.dump();
 
@@ -38,7 +41,7 @@ pub fn det_sumbatrix<T>(mat: Matrix<T>, without_row: usize, without_col: usize) 
         let row = i / cols;
         let col = i % cols;
         if row == without_row || col == without_col {
-            return None
+            return None;
         }
         Some(item)
     });

@@ -3,12 +3,14 @@ mod matrix_helper;
 pub mod matrix_class;
 pub mod vector_class;
 pub mod special_matrices;
+
 pub use matrix_class::Matrix;
 pub use vector_class::Vector;
 
 #[cfg(test)]
 mod tests {
     #![allow(unused_variables, dead_code)]
+
     use super::*;
     use std_vec_tools::VecTools;
 
@@ -62,7 +64,7 @@ mod tests {
         };
 
         let v1 = gen_vec(2);
-        let m = v1.map(|x| 2*x);
+        let m = v1.map(|x| 2 * x);
 
         assert_eq!(m, vec![0, 2]);
 
@@ -93,8 +95,16 @@ mod tests {
         let rot2d = rotation_matrix(2, 0, 1);
         let rot1 = rotation_matrix(3, 2, 0);
         let rot2 = rotation_matrix(3, 0, 1);
+        let rot3 = rot1.clone() * rot2.clone();
 //        println!("\n{}\n", rot2d);
-//        println!("\n** {}\n * {}\n = {}\n", rot1.clone(), rot2.clone(), rot1 * rot2);
+//        println!("\n** {}\n * {}\n = {}\n", rot1, rot2, rot3);
         // Works as intended
+        let rot3_0 = insert_rotation(rot3, 0.0);
+//        println!("{}", rot3_0);
+        let rot2_0 = rotation_matrix(2, 0, 0);
+//        println!("{}", rot2_0);
+        // Rotating to the same axis is kind of weird, I mean how would you do that?????
+        // But i'll keep it in anyway as part of the formal definition I got online
+        // Everything else works well
     }
 }

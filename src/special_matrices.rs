@@ -74,6 +74,15 @@ pub mod rotation {
         }
     }
 
+    impl MatrixElement for RotmatElement {
+        fn zero() -> Self {
+            RotmatElement::Zero
+        }
+        fn one() -> Self {
+            RotmatElement::One
+        }
+    }
+
     impl fmt::Display for RotmatElement
     {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -85,24 +94,24 @@ pub mod rotation {
                         sv.push(format!("{}", e))
                     }
                     sv.join(" * ")
-                },
+                }
                 Add(ref v) => {
                     let mut sv = vec![];
                     for e in v.clone() {
                         sv.push(format!("{}", e))
                     }
                     sv.join(" + ")
-                },
+                }
                 ref other => match other.clone() {
                     Sin => "sin",
                     NegSin => "-sin",
                     Cos => "cos",
-                    One => "1",
-                    Zero => "0",
+                    One => "r1",
+                    Zero => "r0",
                     _ => unreachable!()
                 }.to_string()
             };
-            write!(f, "({})", s)
+            write!(f, "{}", s)
         }
     }
 
@@ -116,29 +125,29 @@ pub mod rotation {
                     RotmatElement::Multiply(vr) => {
                         v = vs.clone();
                         v.extend(vr.clone());
-                    },
+                    }
                     r => {
                         v = vs.clone();
                         v.push(r.clone());
                     }
                 },
                 RotmatElement::Zero => {
-                    return RotmatElement::Zero
-                },
+                    return RotmatElement::Zero;
+                }
                 RotmatElement::One => {
-                    return rhs
-                },
+                    return rhs;
+                }
                 s => match rhs {
                     RotmatElement::Multiply(vr) => {
                         v = vr.clone();
                         v.push(s.clone());
-                    },
+                    }
                     RotmatElement::Zero => {
-                        return RotmatElement::Zero
-                    },
+                        return RotmatElement::Zero;
+                    }
                     RotmatElement::One => {
-                        return s
-                    },
+                        return s;
+                    }
                     r => {
                         v = vec![s, r];
                     }
@@ -158,23 +167,23 @@ pub mod rotation {
                     RotmatElement::Add(vr) => {
                         v = vs.clone();
                         v.extend(vr.clone());
-                    },
+                    }
                     r => {
                         v = vs.clone();
                         v.push(r.clone());
                     }
                 },
                 RotmatElement::Zero => {
-                    return rhs
-                },
+                    return rhs;
+                }
                 s => match rhs {
                     RotmatElement::Add(vr) => {
                         v = vr.clone();
                         v.push(s.clone());
-                    },
+                    }
                     RotmatElement::Zero => {
-                        return s
-                    },
+                        return s;
+                    }
                     r => {
                         v = vec![s, r];
                     }
