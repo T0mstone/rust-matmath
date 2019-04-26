@@ -191,7 +191,7 @@ impl<T> Matrix<T> {
     ///
     /// # Errors
     /// Returns an error if the row is out of bounds
-    pub fn get_row_mut(&mut self, row: usize) -> Vec<&mut T> {
+    pub fn get_row_mut(&mut self, row: usize) -> Result<Vec<&mut T>, IndexOutOfBounds<usize>> {
         if row < self.rows {
             Ok(self
                 .data
@@ -220,7 +220,7 @@ impl<T> Matrix<T> {
     ///
     /// # Errors
     /// Returns an error if the column is out of bounds
-    pub fn get_col_mut(&mut self, col: usize) -> Vec<&mut T> {
+    pub fn get_col_mut(&mut self, col: usize) -> Result<Vec<&mut T>, IndexOutOfBounds<usize>> {
         if col < self.cols {
             Ok(self.data.iter_mut().skip(col).step_by(self.cols).collect())
         } else {
@@ -299,7 +299,7 @@ impl<T: fmt::Display> fmt::Display for Matrix<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let s = (0..self.rows)
             .map(|r| {
-                let row = self.get_row(r);
+                let row = self.get_row(r).unwrap();
                 row.iter()
                     .map(|x| format!("{}", x))
                     .collect::<Vec<_>>()
@@ -376,8 +376,9 @@ where
         let data = positions
             .map(|(r, c)| {
                 self.get_row(r)
+                    .unwrap()
                     .into_iter()
-                    .zip(rhs.get_col(c))
+                    .zip(rhs.get_col(c).unwrap())
                     .map(|(t, u)| t.clone() * u.clone())
                     .add_sum()
                     // this is ok because if rows == 0 or cols == 0, the entire thing is empty and positions is empty and thus this will never get evaluated

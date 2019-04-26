@@ -87,6 +87,10 @@ impl<T> Vector<T> {
             .unwrap_or(O::zero()))
     }
 
+    pub(crate) fn zip<U>(self, rhs: Vector<U>) -> Vector<(T, U)> {
+        Vector::new(self.data.into_iter().zip(rhs.data).collect())
+    }
+
     /// Applies a function to every element of the vector
     pub fn map<F, U>(self, f: F) -> Vector<U>
     where

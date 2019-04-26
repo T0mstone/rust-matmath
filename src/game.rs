@@ -29,6 +29,11 @@ pub mod vec2 {
         {
             self.map(|x| x * scalar.clone())
         }
+
+        pub(crate) fn zip<U>(self, rhs: Vector2<U>) -> Vector2<(T, U)> {
+            ((self.x, rhs.x), (self.y, rhs.y)).into()
+        }
+
         /// Creates a `Vector3` where the `z` coordinate is 1. For more info, see [Homogeneous Coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates)
         pub fn homogenous(self) -> Vector3<T>
         where
@@ -198,6 +203,10 @@ pub mod vec3 {
             (self.x / self.z.clone(), self.y / self.z, T::one()).into()
         }
 
+        pub(crate) fn zip<U>(self, rhs: Vector3<U>) -> Vector3<(T, U)> {
+            ((self.x, rhs.x), (self.y, rhs.y), (self.z, rhs.z)).into()
+        }
+
         /// Applies a function to every element of the vector
         pub fn map<F, U>(self, f: F) -> Vector3<U>
         where
@@ -347,6 +356,16 @@ pub mod vec4 {
                 self.y / self.w.clone(),
                 self.z / self.w,
                 T::one(),
+            )
+                .into()
+        }
+
+        pub(crate) fn zip<U>(self, rhs: Vector4<U>) -> Vector4<(T, U)> {
+            (
+                (self.x, rhs.x),
+                (self.y, rhs.y),
+                (self.z, rhs.z),
+                (self.w, rhs.w),
             )
                 .into()
         }
