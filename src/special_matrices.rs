@@ -1,13 +1,14 @@
 pub mod rotation {
-    use ::std::ops::{Neg, Mul, Add};
-    use ::std::fmt;
-    use ::matrix_class::{MatrixElement, Matrix};
-    use ::std_vec_tools::VecTools;
+    use matrix::{Matrix, MatrixElement};
+    use matrix_helper::{AddSum, FoldOrNone};
+    use std::fmt;
+    use std::ops::{Add, Mul, Neg};
 
     /// This trait ensures that whatever is used as the element has to have Trig (sin and cos) functionality
     /// You have to implement it if you want to use rotation matrices
     pub trait Trig
-        where Self::Output: Neg<Output=Self::Output> + Sized
+    where
+        Self::Output: Neg<Output = Self::Output> + Sized,
     {
         type Output;
 
@@ -49,10 +50,11 @@ pub mod rotation {
         Add(Vec<RotmatElement>),
     }
 
-    impl RotmatElement
-    {
+    impl RotmatElement {
         fn insert_value<T, O>(self, t: T) -> O
-            where T: Trig<Output=O> + Clone, O: Add<Output=O> + Mul<Output=O> + Neg<Output=O> + MatrixElement
+        where
+            T: Trig<Output = O> + Clone,
+            O: Add<Output = O> + Mul<Output = O> + Neg<Output = O> + MatrixElement,
         {
             use self::RotmatElement::*;
             match self {
@@ -62,15 +64,15 @@ pub mod rotation {
                 One => O::one(),
                 Zero => O::zero(),
                 Multiply(v) => {
-                    let iv = v.map(|x| x.insert_value(t.clone()));
+                    let iv = v.into_iter().map(|x| x.insert_value(t.clone()));
                     // unwrap is ok because iv will NEVER be empty
-                    let res: O = iv.acc(|acc, x| acc * x).unwrap();
+                    let res: O = iv.fold_or_none(|acc, x| acc * x).unwrap();
                     res
                 }
                 Add(v) => {
-                    let iv = v.map(|x| x.insert_value(t.clone()));
+                    let iv = v.into_iter().map(|x| x.insert_value(t.clone()));
                     // unwrap is ok because iv will NEVER be empty
-                    iv.sum().unwrap()
+                    iv.add_sum().unwrap()
                 }
             }
         }
@@ -85,8 +87,7 @@ pub mod rotation {
         }
     }
 
-    impl fmt::Display for RotmatElement
-    {
+    impl fmt::Display for RotmatElement {
         fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
             use self::RotmatElement::*;
             let s = match *self {
@@ -110,8 +111,9 @@ pub mod rotation {
                     Cos => "cos",
                     One => "r1",
                     Zero => "r0",
-                    _ => unreachable!()
-                }.to_string()
+                    _ => unreachable!(),
+                }
+                .to_string(),
             };
             write!(f, "{}", s)
         }
@@ -121,41 +123,19 @@ pub mod rotation {
         type Output = RotmatElement;
 
         fn mul(self, rhs: RotmatElement) -> RotmatElement {
-            let mut v;
-            match self {
-                RotmatElement::Multiply(vs) => match rhs {
-                    RotmatElement::Multiply(vr) => {
-                        v = vs.clone();
-                        v.extend(vr.clone());
-                    }
-                    r => {
-                        v = vs.clone();
-                        v.push(r.clone());
-                    }
-                },
-                RotmatElement::Zero => {
-                    return RotmatElement::Zero;
+            match (self, rhs) {
+                (RotmatElement::Multiply(mut v), RotmatElement::Multiply(v2)) => {
+                    v.extend(v2.clone());
+                    RotmatElement::Multiply(v)
                 }
-                RotmatElement::One => {
-                    return rhs;
+                (RotmatElement::Multiply(mut v), r) | (r, RotmatElement::Multiply(mut v)) => {
+                    v.push(r);
+                    RotmatElement::Multiply(v)
                 }
-                s => match rhs {
-                    RotmatElement::Multiply(vr) => {
-                        v = vr.clone();
-                        v.push(s.clone());
-                    }
-                    RotmatElement::Zero => {
-                        return RotmatElement::Zero;
-                    }
-                    RotmatElement::One => {
-                        return s;
-                    }
-                    r => {
-                        v = vec![s, r];
-                    }
-                }
-            };
-            RotmatElement::Multiply(v)
+                (RotmatElement::Zero, _) | (_, RotmatElement::Zero) => RotmatElement::Zero,
+                (RotmatElement::One, x) | (x, RotmatElement::One) => x,
+                (r1, r2) => RotmatElement::Multiply(vec![r1, r2]),
+            }
         }
     }
 
@@ -163,40 +143,27 @@ pub mod rotation {
         type Output = RotmatElement;
 
         fn add(self, rhs: RotmatElement) -> RotmatElement {
-            let mut v;
-            match self {
-                RotmatElement::Add(vs) => match rhs {
-                    RotmatElement::Add(vr) => {
-                        v = vs.clone();
-                        v.extend(vr.clone());
-                    }
-                    r => {
-                        v = vs.clone();
-                        v.push(r.clone());
-                    }
-                },
-                RotmatElement::Zero => {
-                    return rhs;
+            match (self, rhs) {
+                (RotmatElement::Add(mut v), RotmatElement::Add(v2)) => {
+                    v.extend(v2.clone());
+                    RotmatElement::Add(v)
                 }
-                s => match rhs {
-                    RotmatElement::Add(vr) => {
-                        v = vr.clone();
-                        v.push(s.clone());
-                    }
-                    RotmatElement::Zero => {
-                        return s;
-                    }
-                    r => {
-                        v = vec![s, r];
-                    }
+                (RotmatElement::Add(mut v), r) | (r, RotmatElement::Add(mut v)) => {
+                    v.push(r);
+                    RotmatElement::Add(v)
                 }
-            };
-            RotmatElement::Add(v)
+                (RotmatElement::Zero, x) | (x, RotmatElement::Zero) => x,
+                (r1, r2) => RotmatElement::Add(vec![r1, r2]),
+            }
         }
     }
 
-    fn gen_rotmat_element(row_i: usize, col_i: usize, from_ax_i: usize, to_ax_i: usize) -> RotmatElement
-    {
+    fn gen_rotmat_element(
+        row_i: usize,
+        col_i: usize,
+        from_ax_i: usize,
+        to_ax_i: usize,
+    ) -> RotmatElement {
         use self::RotmatElement::*;
         if row_i == col_i {
             if row_i == from_ax_i || row_i == to_ax_i {
@@ -213,13 +180,13 @@ pub mod rotation {
         }
     }
 
-    /// Generates a rotation matrix in n dimensions that rotates from axis a to axis b  (does **not** contain actual values, look under `Matrix`, in `impl Matrix<RotmatElement>` to insert values into a rotation Matrix)
+    /// Generates a rotation matrix in n dimensions that rotates from axis a to axis b  (does **not** contain actual values, look at [`Matrix::<RotmatElement>::insert_rotation_value`] to insert values into a rotation Matrix)
     ///
     /// (e.g. a counter-clockwise rotation in 2D would be from the X to the Y axis and so you'd call this function with parameters `(2, 0, 1)` (since axes are indexed from 0))
     ///
     /// You can still multiply this matrix with other `Matrix<RotmatElement>` to combine rotations
-    pub fn rotation_matrix(rows: usize, from_axis: usize, to_axis: usize) -> Matrix<RotmatElement> {
-        Matrix::build(rows, rows, |row, col| {
+    pub fn rotation_matrix(size: usize, from_axis: usize, to_axis: usize) -> Matrix<RotmatElement> {
+        Matrix::build(size, size, |row, col| {
             gen_rotmat_element(row, col, from_axis, to_axis)
         })
     }
@@ -229,7 +196,9 @@ pub mod rotation {
         /// For f32 and f64, this would be the angle in radians, but for your own type it could be whatever...
         /// (it uses the `Trig` and the `MatrixElement` traits to get values for sin, -sin, cos, 0 and 1)
         pub fn insert_rotation_value<T, O>(self, value: T) -> Matrix<O>
-            where T: Trig<Output=O> + Clone, O: Neg<Output=O> + Add<Output=O> + Mul<Output=O> + MatrixElement
+        where
+            T: Trig<Output = O> + Clone,
+            O: Neg<Output = O> + Add<Output = O> + Mul<Output = O> + MatrixElement,
         {
             self.map(|rme| rme.insert_value(value.clone()))
         }
@@ -237,20 +206,28 @@ pub mod rotation {
 }
 
 pub mod projection {
-    use ::std::ops::{Mul, Add};
-    use ::matrix_class::{MatrixElement, Matrix};
-    use ::Vector;
+    use matrix::{Matrix, MatrixElement};
+    use std::ops::{Add, Mul};
+    use Vector;
 
     /// This builds a matrix that casts a shadow of an n-D vector to an (n-1)-Dimensional space (which means that the `dim_to_remove`-th number gets chopped off)
     pub fn shadow_projection_matrix<T>(from_dim: usize) -> Matrix<T>
-        where T: MatrixElement
+    where
+        T: MatrixElement,
     {
-        Matrix::build(from_dim - 1, from_dim, |row, col| if row == col { T::one() } else { T::zero() })
+        Matrix::build(from_dim - 1, from_dim, |row, col| {
+            if row == col {
+                T::one()
+            } else {
+                T::zero()
+            }
+        })
     }
 
     /// This is similar to a shadow projection but it scales the vector with the chopped off value
     pub fn scaling_project<T>(vec: Vector<T>) -> Vector<T>
-        where T: MatrixElement + Mul<Output=T> + Add<Output=T> + Clone
+    where
+        T: MatrixElement + Mul<Output = T> + Add<Output = T> + Clone,
     {
         if vec.dim() == 0 {
             return Vector::new(vec![]);
@@ -264,22 +241,27 @@ pub mod projection {
     ///
     /// You have done this by hand if you've ever drawn a 3d coordinate system on paper (the 3rd axis is kind of diagonal there)
     pub fn parallel_projection_matrix<T>(from_dim: usize, embedded_axis: Vector<T>) -> Matrix<T>
-        where T: MatrixElement + Clone
+    where
+        T: MatrixElement + Clone,
     {
         assert_eq!(embedded_axis.dim(), from_dim - 1);
         Matrix::build(from_dim - 1, from_dim, |row, col| {
             if col == from_dim - 1 {
                 embedded_axis[row].clone()
             } else {
-                if col == row { T::one() } else { T::zero() }
+                if col == row {
+                    T::one()
+                } else {
+                    T::zero()
+                }
             }
         })
     }
 }
 
 pub mod misc {
-    use super::rotation::{RotmatElement, rotation_matrix};
-    use ::matrix_class::{MatrixElement, Matrix};
+    use super::rotation::{rotation_matrix, RotmatElement};
+    use matrix::{Matrix, MatrixElement};
 
     /// Shortcut for creating a 2d rotation matrix (counter-clockwise)
     pub fn rotmat2() -> Matrix<RotmatElement> {
@@ -303,7 +285,8 @@ pub mod misc {
 
     /// Generates a Matrix that switches two dimensions of a vector (e.g. `Vector(1, 2, 3)` -> `Vector(1, 3, 2)`
     pub fn switch_dimension_matrix<T>(rows: usize, dim1: usize, dim2: usize) -> Matrix<T>
-        where T: MatrixElement
+    where
+        T: MatrixElement,
     {
         Matrix::build(rows, rows, |row, col| {
             if col == dim1 {

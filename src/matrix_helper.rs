@@ -1,51 +1,54 @@
-use ::std_vec_tools::VecTools;
-use ::matrix_class::Matrix;
+use matrix::Matrix;
+use std::ops::Add;
 
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
+pub struct IndexOutOfBounds<T>(pub T);
 
-pub fn vec_transposed<T>(data: Vec<T>, rows: usize, cols: usize) -> Vec<T> {
-    let mut e_data = data.enumerate();
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
+pub struct DimensionsDontMatch<T, U>(pub T, pub U);
 
-    e_data.sort_by(|(i1, _), (i2, _)| {
-        let calc_i = |i: usize| -> usize {
-            let old_row = i / cols;
-            let old_col = i % cols;
-            let new_i = (old_col * rows) + old_row;
-            new_i
-        };
-        calc_i(*i1).cmp(&calc_i(*i2))
-    });
-
-    let data = e_data.map(|(_, e)| e);
-    data
+pub fn det_sumbatrix<T>(mat: &Matrix<T>, without_row: usize, without_col: usize) -> Matrix<&T> {
+    assert!(
+        without_row < mat.rows(),
+        "internal error in det_submatrix: without_row is out of bounds"
+    );
+    assert!(
+        without_col < mat.cols(),
+        "internal error in det_submatrix: without_col is out of bounds"
+    );
+    Matrix::build(mat.rows() - 1, mat.cols() - 1, |r, c| {
+        let old_r = if r >= without_row { r + 1 } else { r };
+        let old_c = if c >= without_col { c + 1 } else { c };
+        mat.get(old_r, old_c).unwrap()
+    })
 }
 
-pub fn vec_get_row<T>(data: Vec<T>, row_i: usize, rows: usize, cols: usize) -> Vec<T>
-    where T: Clone
-{
-    assert!(row_i < rows, "index out of bounds");
-    let row_start = cols * row_i;
-    let row_end = cols * (row_i + 1);
-    data[row_start..row_end].to_vec()
+pub trait FoldOrNone<T> {
+    type Output;
+
+    fn fold_or_none<F: FnMut(T, T) -> T>(self, f: F) -> Option<Self::Output>;
 }
 
-pub fn vec_get_col<T>(data: Vec<T>, col_i: usize, rows: usize, cols: usize) -> Vec<T>
-    where T: Clone
-{
-    vec_get_row(vec_transposed(data, rows, cols), col_i, cols, rows)
+impl<T, I: Iterator<Item = T>> FoldOrNone<T> for I {
+    type Output = T;
+
+    fn fold_or_none<F: FnMut(T, T) -> T>(mut self, f: F) -> Option<T> {
+        let acc = self.next()?;
+        Some(self.fold(acc, f))
+    }
 }
 
-pub fn det_sumbatrix<T>(mat: Matrix<T>, without_row: usize, without_col: usize) -> Matrix<T> {
-    let (rows, cols, data) = mat.dump();
+pub trait AddSum<T> {
+    type Output;
 
-    let mut res_data = data.enumerate().map(|(i, item)| {
-        let row = i / cols;
-        let col = i % cols;
-        if row == without_row || col == without_col {
-            return None;
-        }
-        Some(item)
-    });
-    res_data.retain(|x| x.is_some());
-    let data = res_data.map(|x| x.unwrap());
-    Matrix::from_vec(rows - 1, cols - 1, data)
+    fn add_sum(self) -> Option<Self::Output>;
+}
+
+impl<T: Add<Output = T>, I: Iterator<Item = T>> AddSum<T> for I {
+    type Output = T;
+
+    fn add_sum(mut self) -> Option<T> {
+        let acc = self.next()?;
+        Some(self.fold(acc, |acc, t| acc + t))
+    }
 }
