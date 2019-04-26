@@ -3,8 +3,9 @@ use matrix_helper::{AddSum, DimensionsDontMatch};
 use std::convert::{From, Into};
 use std::fmt;
 use std::iter::FromIterator;
-use std::ops::{Add, Index, IndexMut, Mul, Neg, Sub};
 
+use std::ops::{Add, Index, IndexMut, Mul, Neg, Sub};
+/// Used for [`Vector::Mag`](struct.Vector.html#method.mag)
 pub trait SquareRootable {
     type Output;
 
@@ -31,7 +32,7 @@ impl_sqrt!(f32, f64);
 /// Can be indexed by `vector[i]`
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Vector<T> {
-    data: Vec<T>,
+    pub(crate) data: Vec<T>,
 }
 
 impl<T> Vector<T> {
@@ -65,6 +66,15 @@ impl<T> Vector<T> {
             .map(|x| x.clone() * x)
             .add_sum()
             .unwrap_or(O::zero())
+    }
+
+    /// Returns the [Magnitude (also called Norm)](https://en.wikipedia.org/wiki/Norm_(mathematics)) of the Vector
+    pub fn mag<O, U: SquareRootable<Output = O>>(self) -> O
+    where
+        T: Mul<Output = U> + Clone,
+        U: Add<Output = U> + MatrixElement,
+    {
+        self.mag_sqr().sqrt()
     }
 
     /// Returns the [Dot Product](https://en.wikipedia.org/wiki/Dot_product) of the Vector and `rhs`

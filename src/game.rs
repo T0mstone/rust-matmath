@@ -65,8 +65,8 @@ pub mod vec2 {
     impl<T> From<Matrix<T>> for Vector2<T> {
         fn from(mat: Matrix<T>) -> Self {
             let (rows, cols, mut data) = mat.split();
-            assert_eq!(cols, 1);
-            assert_eq!(rows, 2);
+            assert_eq!(cols, 1, "dimensions don't match");
+            assert_eq!(rows, 2, "dimensions don't match");
             let y = data.pop().unwrap();
             let x = data.pop().unwrap();
 
@@ -80,14 +80,13 @@ pub mod vec2 {
         }
     }
 
-    impl<T: Clone> From<Vector<T>> for Vector2<T> {
-        fn from(vec: Vector<T>) -> Self {
+    impl<T> From<Vector<T>> for Vector2<T> {
+        fn from(mut vec: Vector<T>) -> Self {
             let dim = vec.dim();
-            assert_eq!(dim, 2);
-            Self {
-                x: vec[0].clone(),
-                y: vec[1].clone(),
-            }
+            assert_eq!(dim, 2, "dimensions don't match");
+            let y = vec.data.pop().unwrap();
+            let x = vec.data.pop().unwrap();
+            Self { x, y }
         }
     }
 
@@ -237,8 +236,8 @@ pub mod vec3 {
     {
         fn from(mat: Matrix<T>) -> Self {
             let (rows, cols, mut data) = mat.split();
-            assert_eq!(cols, 1);
-            assert_eq!(rows, 3);
+            assert_eq!(cols, 1, "dimensions don't match");
+            assert_eq!(rows, 3, "dimensions don't match");
             let z = data.pop().unwrap();
             let y = data.pop().unwrap();
             let x = data.pop().unwrap();
@@ -253,18 +252,14 @@ pub mod vec3 {
         }
     }
 
-    impl<T> From<Vector<T>> for Vector3<T>
-    where
-        T: Clone,
-    {
-        fn from(vec: Vector<T>) -> Self {
+    impl<T> From<Vector<T>> for Vector3<T> {
+        fn from(mut vec: Vector<T>) -> Self {
             let dim = vec.dim();
-            assert_eq!(dim, 3);
-            Self {
-                x: vec[0].clone(),
-                y: vec[1].clone(),
-                z: vec[2].clone(),
-            }
+            assert_eq!(dim, 3, "dimensions don't match");
+            let z = vec.data.pop().unwrap();
+            let y = vec.data.pop().unwrap();
+            let x = vec.data.pop().unwrap();
+            Self { x, y, z }
         }
     }
 
@@ -400,8 +395,8 @@ pub mod vec4 {
     {
         fn from(mat: Matrix<T>) -> Self {
             let (rows, cols, data) = mat.split();
-            assert_eq!(cols, 1);
-            assert_eq!(rows, 4);
+            assert_eq!(cols, 1, "dimensions don't match");
+            assert_eq!(rows, 4, "dimensions don't match");
             Self {
                 x: data[0].clone(),
                 y: data[1].clone(),
@@ -417,19 +412,15 @@ pub mod vec4 {
         }
     }
 
-    impl<T> From<Vector<T>> for Vector4<T>
-    where
-        T: Clone,
-    {
-        fn from(vec: Vector<T>) -> Self {
+    impl<T> From<Vector<T>> for Vector4<T> {
+        fn from(mut vec: Vector<T>) -> Self {
             let dim = vec.dim();
-            assert_eq!(dim, 4);
-            Self {
-                x: vec[0].clone(),
-                y: vec[1].clone(),
-                z: vec[2].clone(),
-                w: vec[3].clone(),
-            }
+            assert_eq!(dim, 4, "dimensions don't match");
+            let w = vec.data.pop().unwrap();
+            let z = vec.data.pop().unwrap();
+            let y = vec.data.pop().unwrap();
+            let x = vec.data.pop().unwrap();
+            Self { x, y, z, w }
         }
     }
 
