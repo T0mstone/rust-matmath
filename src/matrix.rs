@@ -1,7 +1,6 @@
+use matrix_helper::{AddSum, FoldOrNone, IndexOutOfBounds};
 use std::fmt;
 use std::ops::{Add, Index, IndexMut, Mul, Neg, Sub};
-//use std_vec_tools::VecTools;
-use matrix_helper::{AddSum, FoldOrNone, IndexOutOfBounds};
 use Vector;
 
 /// This trait is required for some methods and functions in this crate
@@ -76,6 +75,7 @@ impl<T> Matrix<T> {
 }
 
 impl<T: Clone> Matrix<&T> {
+    /// Clones the elements of a `Matrix<&T>` and returns a `Matrix<T>`
     pub fn cloned(&self) -> Matrix<T> {
         let (rows, cols) = self.dim();
         let data = self.data.iter().map(|v| (*v).clone()).collect::<Vec<_>>();
@@ -86,26 +86,31 @@ impl<T: Clone> Matrix<&T> {
 pub type IndexResult<T> = Result<T, IndexOutOfBounds<(usize, usize)>>;
 
 impl<T> Matrix<T> {
+    /// returns the number of rows (the 'height') of the matrix
     #[inline]
     pub fn rows(&self) -> usize {
         self.rows
     }
 
+    /// returns the number of columns (the 'width') of the matrix
     #[inline]
     pub fn cols(&self) -> usize {
         self.cols
     }
 
+    /// returns the number of rows and the number of columns of the matrix (in that order)
     #[inline]
     pub fn dim(&self) -> (usize, usize) {
         (self.rows, self.cols)
     }
 
+    /// returns the total number of elements in the matrix
     #[inline]
-    pub fn area(&self) -> usize {
+    pub fn elements(&self) -> usize {
         self.rows * self.cols
     }
 
+    /// splits the struct up into its parts, that is into `(rows, columns, data)`
     #[inline]
     pub fn split(self) -> (usize, usize, Vec<T>) {
         (self.rows, self.cols, self.data)
@@ -120,68 +125,124 @@ impl<T> Matrix<T> {
         }
     }
 
+    /// Converts a `Matrix<T>` to a `Matrix<Option<T>>` by mapping every element `e` to `Some(e)`
     pub fn into_some(self) -> Matrix<Option<T>> {
         self.map(|t| Some(t))
     }
 
+    /// get a reference to the item at `(row, col)`
+    ///
+    /// # Errors
+    /// Returns an error if the index is out of bounds
     pub fn get(&self, row: usize, col: usize) -> IndexResult<&T> {
         let i = self.mk_index(row, col)?;
         Ok(self.data.get(i).unwrap())
     }
 
+    /// get a mutable reference to the item at `(row, col)`
+    ///
+    /// # Errors
+    /// Returns an error if the index is out of bounds
     pub fn get_mut(&mut self, row: usize, col: usize) -> IndexResult<&mut T> {
         let i = self.mk_index(row, col)?;
         Ok(self.data.get_mut(i).unwrap())
     }
 
+    /// get a the item at `(row, col)` and replace it with `val`
+    ///
+    /// This works like `{let res = self.get(row, col); self.set(row, col, val); res}` but you get ownership of the returned value
+    ///
+    /// # Errors
+    /// Returns an error if the index is out of bounds
     pub fn replace(&mut self, row: usize, col: usize, val: T) -> IndexResult<T> {
         use std::mem::replace;
         let i = self.mk_index(row, col)?;
         Ok(replace(self.data.get_mut(i).unwrap(), val))
     }
 
+    /// set the item at `(row, col)` to `val`
+    ///
+    /// # Errors
+    /// Returns an error if the index is out of bounds
     pub fn set(&mut self, row: usize, col: usize, val: T) -> IndexResult<()> {
         let i = self.mk_index(row, col)?;
         self.data[i] = val;
         Ok(())
     }
 
-    pub fn get_row(&self, row: usize) -> Vec<&T> {
-        self.data
-            .iter()
-            .skip(row * self.cols)
-            .take(self.cols)
-            .collect()
+    /// get an entire row of (references of) items
+    ///
+    /// # Errors
+    /// Returns an error if the row is out of bounds
+    pub fn get_row(&self, row: usize) -> Result<Vec<&T>, IndexOutOfBounds<usize>> {
+        if row < self.rows {
+            Ok(self
+                .data
+                .iter()
+                .skip(row * self.cols)
+                .take(self.cols)
+                .collect())
+        } else {
+            Err(IndexOutOfBounds(row))
+        }
     }
 
+    /// get an entire row of (mutable references of) items
+    ///
+    /// # Errors
+    /// Returns an error if the row is out of bounds
     pub fn get_row_mut(&mut self, row: usize) -> Vec<&mut T> {
-        self.data
-            .iter_mut()
-            .skip(row * self.cols)
-            .take(self.cols)
-            .collect()
+        if row < self.rows {
+            Ok(self
+                .data
+                .iter_mut()
+                .skip(row * self.cols)
+                .take(self.cols)
+                .collect())
+        } else {
+            Err(IndexOutOfBounds(row))
+        }
     }
 
-    pub fn get_col(&self, col: usize) -> Vec<&T> {
-        self.data.iter().skip(col).step_by(self.cols).collect()
+    /// get an entire column of (references of) items
+    ///
+    /// # Errors
+    /// Returns an error if the column is out of bounds
+    pub fn get_col(&self, col: usize) -> Result<Vec<&T>, IndexOutOfBounds<usize>> {
+        if col < self.cols {
+            Ok(self.data.iter().skip(col).step_by(self.cols).collect())
+        } else {
+            Err(IndexOutOfBounds(col))
+        }
     }
 
+    /// get an entire column of (mutable references of) items
+    ///
+    /// # Errors
+    /// Returns an error if the column is out of bounds
     pub fn get_col_mut(&mut self, col: usize) -> Vec<&mut T> {
-        self.data.iter_mut().skip(col).step_by(self.cols).collect()
+        if col < self.cols {
+            Ok(self.data.iter_mut().skip(col).step_by(self.cols).collect())
+        } else {
+            Err(IndexOutOfBounds(col))
+        }
     }
 
+    /// Returns a new `Matrix` that is obtained by applying the given function to each element
     pub fn map<F: Fn(T) -> U, U>(self, f: F) -> Matrix<U> {
         let (rows, cols, data) = self.split();
         let data = data.into_iter().map(f).collect();
         Matrix { data, rows, cols }
     }
 
+    /// Returns the [Transpose](https://en.wikipedia.org/wiki/Transpose) of this Matrix
     pub fn transposed(self) -> Self {
         let (rows, cols) = self.dim();
         let mut m = self.into_some();
         Matrix::build(cols, rows, |r, c| m.take(c, r).unwrap().unwrap())
     }
 
+    /// Returns the [Determinant](https://en.wikipedia.org/wiki/Determinant) of this Matrix
     pub fn det(self) -> Option<T>
     where
         T: Add<Output = T> + Sub<Output = T> + MatrixElement + Clone + Mul<Output = T>,
@@ -219,7 +280,7 @@ impl<T> Matrix<T> {
         )
     }
 
-    /// Multiplies the matrix with a scalar
+    /// Multiplies the matrix with a scalar by multiplying each element with the scalar
     pub fn scaled<U: Mul<T, Output = O> + Clone, O>(self, scalar: U) -> Matrix<O> {
         let (rows, cols) = self.dim();
         let data = self.data.into_iter().map(|x| scalar.clone() * x).collect();
@@ -228,6 +289,7 @@ impl<T> Matrix<T> {
 }
 
 impl<T> Matrix<Option<T>> {
+    /// return the value at `(row, col)`, leaving `None` in its place
     pub fn take(&mut self, row: usize, col: usize) -> IndexResult<Option<T>> {
         Ok(self.get_mut(row, col)?.take())
     }

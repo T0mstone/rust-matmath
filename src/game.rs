@@ -29,16 +29,12 @@ pub mod vec2 {
         {
             self.map(|x| x * scalar.clone())
         }
-        /// Creates a `Vector3` where the `z` coordinate is 1
+        /// Creates a `Vector3` where the `z` coordinate is 1. For more info, see [Homogeneous Coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates)
         pub fn homogenous(self) -> Vector3<T>
         where
             T: MatrixElement,
         {
             (self.x, self.y, T::one()).into()
-        }
-
-        pub fn zip<U>(self, other: Vector2<U>) -> Vector2<(T, U)> {
-            Vector2::new((self.x, other.x), (self.y, other.y))
         }
 
         /// Applies a function to every element of the vector
@@ -163,14 +159,15 @@ pub mod vec3 {
         {
             self.map(|x| x * scalar.clone())
         }
+
         pub fn cross_product<U, O>(self, other: Vector3<U>) -> Vector3<O>
         where
             T: Mul<U, Output = O> + Clone,
             U: Clone,
             O: Sub<Output = O>,
         {
-            let (u1, u2, u3) = self.into();
-            let (v1, v2, v3) = other.into();
+            let (u1, u2, u3): (T, T, T) = self.into();
+            let (v1, v2, v3): (U, U, U) = other.into();
             let (uu1, uu2, uu3, vv1, vv2, vv3) = (
                 u1.clone(),
                 u2.clone(),
@@ -184,7 +181,8 @@ pub mod vec3 {
             let s3 = u1 * v2 - u2 * v1;
             (s1, s2, s3).into()
         }
-        /// Creates a `Vector4` where the `w` coordinate is 0
+
+        /// Creates a `Vector4` where the `w` coordinate is 1. For more info, see [Homogeneous Coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates)
         pub fn homogenous(self) -> Vector4<T>
         where
             T: MatrixElement,
@@ -192,9 +190,14 @@ pub mod vec3 {
             (self.x, self.y, self.z, T::one()).into()
         }
 
-        pub fn zip<U>(self, other: Vector3<U>) -> Vector3<(T, U)> {
-            Vector3::new((self.x, other.x), (self.y, other.y), (self.z, other.z))
+        /// Normalizes `self` so the `z` coordinate is 1. For more info, see [Homogeneous Coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates)
+        pub fn normalize_homogeneous(self) -> Vector3<T>
+        where
+            T: Div<Output = T> + Clone + MatrixElement,
+        {
+            (self.x / self.z.clone(), self.y / self.z, T::one()).into()
         }
+
         /// Applies a function to every element of the vector
         pub fn map<F, U>(self, f: F) -> Vector3<U>
         where
@@ -334,14 +337,20 @@ pub mod vec4 {
             self.map(|x| x * scalar.clone())
         }
 
-        pub fn zip<U>(self, other: Vector4<U>) -> Vector4<(T, U)> {
-            Vector4::new(
-                (self.x, other.x),
-                (self.y, other.y),
-                (self.z, other.z),
-                (self.w, other.w),
+        /// Normalizes `self` so the `w` coordinate is 1. For more info, see [Homogeneous Coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates)
+        pub fn normalize_homogeneous(self) -> Vector4<T>
+        where
+            T: Div<Output = T> + Clone + MatrixElement,
+        {
+            (
+                self.x / self.w.clone(),
+                self.y / self.w.clone(),
+                self.z / self.w,
+                T::one(),
             )
+                .into()
         }
+
         /// Applies a function to every element of the vector
         pub fn map<F, U>(self, f: F) -> Vector4<U>
         where
@@ -470,15 +479,15 @@ pub mod cam3d {
     use special_matrices::misc;
     use special_matrices::rotation::Trig;
 
+    /// A 3d Camera using transformation matrices (**BEWARE** this is not tested and maynot work correctly)
+    ///
+    /// In Camera space, z is forward, x is left, y is up
     pub struct Cam3d<T> {
         pub pos: Vector3<T>,
         pub rot: Vector3<T>,
         pub focal_length: T,
     }
 
-    /// A Camera Object
-    ///
-    /// In Camera space, z is forward, x is left, y is up
     impl<T> Cam3d<T> {
         pub fn new(pos: (T, T, T), rot: (T, T, T), focal_length: T) -> Self {
             Self {

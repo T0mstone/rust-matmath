@@ -1,8 +1,11 @@
 /// Contains some things specific to game development
 pub mod game;
+/// The core matrix module
 pub mod matrix;
 mod matrix_helper;
+/// constructors for some special matrices
 pub mod special_matrices;
+/// The core matrix module
 pub mod vector;
 
 pub use matrix::Matrix;

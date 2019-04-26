@@ -1,7 +1,7 @@
 use matrix::{Matrix, MatrixElement};
 use matrix_helper::{AddSum, DimensionsDontMatch};
 use std::convert::{From, Into};
-use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::fmt;
 use std::iter::FromIterator;
 use std::ops::{Add, Index, IndexMut, Mul, Neg, Sub};
 
@@ -35,10 +35,12 @@ pub struct Vector<T> {
 }
 
 impl<T> Vector<T> {
-    pub fn new(data: Vec<T>) -> Self {
-        Self { data }
+    /// Creates a new Vector with the given coordinates
+    pub fn new(coords: Vec<T>) -> Self {
+        Self { data: coords }
     }
 
+    /// Returns the amount of dimensions the Vector has
     pub fn dim(&self) -> usize {
         self.data.len()
     }
@@ -52,6 +54,7 @@ impl<T> Vector<T> {
         self.map(|x| x * scalar.clone())
     }
 
+    /// Returns the square of the [Magnitude (also called Norm)](https://en.wikipedia.org/wiki/Norm_(mathematics)) of the Vector
     pub fn mag_sqr<O>(self) -> O
     where
         T: Mul<Output = O> + Clone,
@@ -64,6 +67,7 @@ impl<T> Vector<T> {
             .unwrap_or(O::zero())
     }
 
+    /// Returns the [Dot Product](https://en.wikipedia.org/wiki/Dot_product) of the Vector and `rhs`
     pub fn dot<U, O: Add<Output = O> + MatrixElement>(
         self,
         rhs: Vector<U>,
@@ -83,10 +87,6 @@ impl<T> Vector<T> {
             .unwrap_or(O::zero()))
     }
 
-    pub fn zip<U>(self, other: Vector<U>) -> Vector<(T, U)> {
-        Vector::new(self.data.into_iter().zip(other.data).collect())
-    }
-
     /// Applies a function to every element of the vector
     pub fn map<F, U>(self, f: F) -> Vector<U>
     where
@@ -96,8 +96,8 @@ impl<T> Vector<T> {
     }
 }
 
-impl<T: Display> Display for Vector<T> {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+impl<T: fmt::Display> fmt::Display for Vector<T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let s = self
             .data
             .iter()

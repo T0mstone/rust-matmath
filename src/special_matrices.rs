@@ -51,6 +51,7 @@ pub mod rotation {
     }
 
     impl RotmatElement {
+        /// Insert a value (for traditional use an angle in radians as an f64 or f32)
         pub fn insert_value<T, O>(self, t: T) -> O
         where
             T: Trig<Output = O> + Clone,
