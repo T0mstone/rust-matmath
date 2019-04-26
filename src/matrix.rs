@@ -4,7 +4,7 @@ use std::ops::{Add, Index, IndexMut, Mul, Neg, Sub};
 use matrix_helper::{AddSum, FoldOrNone, IndexOutOfBounds};
 use Vector;
 
-/// This trait is required for `matrix.identity(...)` and for `matrix.det()`
+/// This trait is required for some methods and functions in this crate
 pub trait MatrixElement {
     fn zero() -> Self;
     fn one() -> Self;

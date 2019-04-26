@@ -51,7 +51,7 @@ pub mod rotation {
     }
 
     impl RotmatElement {
-        fn insert_value<T, O>(self, t: T) -> O
+        pub fn insert_value<T, O>(self, t: T) -> O
         where
             T: Trig<Output = O> + Clone,
             O: Add<Output = O> + Mul<Output = O> + Neg<Output = O> + MatrixElement,
@@ -180,7 +180,7 @@ pub mod rotation {
         }
     }
 
-    /// Generates a rotation matrix in n dimensions that rotates from axis a to axis b  (does **not** contain actual values, look at [`Matrix::<RotmatElement>::insert_rotation_value`] to insert values into a rotation Matrix)
+    /// Generates a rotation matrix in n dimensions that rotates from axis a to axis b  (does **not** contain actual values, look at [`Matrix::<RotmatElement>::insert_rotation_value`](../../matrix/struct.Matrix.html#method.insert_rotation_value) to insert values into a rotation Matrix)
     ///
     /// (e.g. a counter-clockwise rotation in 2D would be from the X to the Y axis and so you'd call this function with parameters `(2, 0, 1)` (since axes are indexed from 0))
     ///
